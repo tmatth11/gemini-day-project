@@ -144,7 +144,12 @@ function App() {
                             ))}
                         </div>
 
-                        {loadingMore ? <p className='loading-indicator'>Loading more stories...</p> : <button className="more-btn" onClick={handleLoadMore}>Load More</button>}
+                        {stories.length > 0 && stories[0].headline !== "" &&
+                            (loadingMore
+                                ? <p className='loading-indicator'>Loading more stories...</p>
+                                : <button className="more-btn" onClick={handleLoadMore}>Load More</button>
+                            )
+                        }
 
                     </div>
                 }
