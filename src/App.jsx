@@ -15,7 +15,9 @@ function App() {
             paragraphs: []
         }
     ]);
+
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
         const savedStories = localStorage.getItem('stories');
@@ -52,13 +54,7 @@ function App() {
 
     const isEmpty = topic.trim() === "";
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        console.log("Submitted topic:", topic);
-        console.log("Loading...");
-        setLoading(true);
-
+    const generateStories = async () => {
         const output = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: `Generate ${numStories} fake and satire news articles about the topic: "${topic}". Each article should have a headline, a short description, an author name (first and last), a date (Example: Saturday, October 25, 2025), a time in CST (Example: 1:11 PM CST (DO NOT USE ZEROS FOR THE FIRST DIGIT OF THE HOURS)), and 3-5 paragraphs of content. The articles should be quite ridiculous and humorous, but don't include any swear words or inappropriate content. Respond with the specified JSON schema.`,
@@ -68,17 +64,43 @@ function App() {
             }
         });
 
-        setLoading(false);
-
         const response = JSON.parse(output.text);
+
+        return response;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        console.log("Submitted topic:", topic);
+        console.log("Loading...");
+        setLoading(true);
+
+        const response = await generateStories();
         const storiesWithId = response.map((story, idx) => ({
             ...story,
             id: idx
         }));
         setStories(storiesWithId);
         localStorage.setItem('stories', JSON.stringify(storiesWithId));
-
         console.log("Generated stories:", storiesWithId);
+
+        setLoading(false);
+    };
+
+    const handleLoadMore = async () => {
+        setLoadingMore(true);
+
+        const response = await generateStories();
+        const startIdx = stories.length;
+        const moreStories = response.map((story, idx) => ({
+            ...story,
+            id: startIdx + idx
+        }));
+        setStories([...stories, ...moreStories]);
+        localStorage.setItem('stories', JSON.stringify([...stories, ...moreStories]));
+
+        setLoadingMore(false);
     };
 
     return (
@@ -119,12 +141,14 @@ function App() {
                                     key={story.id}
                                     className='story-headline'
                                     state={{ story }}
-                                    >
+                                >
                                     {story.headline}
                                 </NavLink>
                             ))}
                         </div>
-                        <button className="more-btn">Load More</button>
+
+                        {loadingMore ? <p className='loading-indicator'>Loading more stories...</p> : <button className="more-btn" onClick={handleLoadMore}>Load More</button>}
+
                     </div>
                 }
             </div>

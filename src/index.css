@@ -1,6 +1,7 @@
 :root {
     --primary-color: #ed6693;
     --secondary-color: #e1ff00;
+    --link-color: #0000ee;
 }
 
 * {
@@ -59,6 +60,11 @@ body {
     border-radius: 10px;
 }
 
+.more-btn,
+.loading-indicator {
+    margin-bottom: 20px;
+}
+
 .submit-btn,
 .more-btn,
 .back-btn {
@@ -72,6 +78,10 @@ body {
     gap: 10px;
     padding: 0 20px;
     margin-bottom: 20px;
+}
+
+.story-headline:visited {
+    color: var(--link-color);
 }
 
 .story-results {
