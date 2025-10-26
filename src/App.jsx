@@ -72,8 +72,6 @@ function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("Submitted topic:", topic);
-        console.log("Loading...");
         setLoading(true);
 
         const response = await generateStories();
@@ -83,7 +81,6 @@ function App() {
         }));
         setStories(storiesWithId);
         localStorage.setItem('stories', JSON.stringify(storiesWithId));
-        console.log("Generated stories:", storiesWithId);
 
         setLoading(false);
     };
