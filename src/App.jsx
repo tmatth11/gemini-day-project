@@ -15,7 +15,6 @@ function App() {
             paragraphs: []
         }
     ]);
-
     const [loading, setLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
 
@@ -23,6 +22,10 @@ function App() {
         const savedStories = localStorage.getItem('stories');
         if (savedStories) {
             setStories(JSON.parse(savedStories));
+        }
+        const lastTopic = localStorage.getItem('lastTopic');
+        if (lastTopic) {
+            setTopic(lastTopic);
         }
     }, []);
 
@@ -54,10 +57,10 @@ function App() {
 
     const isEmpty = topic.trim() === "";
 
-    const generateStories = async () => {
+    const generateStories = async (topicToUse) => {
         const output = await ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: `Generate ${numStories} fake and satire news articles about the topic: "${topic}". Each article should have a headline, a short description, an author name (first and last), a date (Example: Saturday, October 25, 2025), a time in CST (Example: 1:11 PM CST (DO NOT USE ZEROS FOR THE FIRST DIGIT OF THE HOURS)), and 3-5 paragraphs of content. The articles should be quite ridiculous and humorous, but don't include any swear words or inappropriate content. Respond with the specified JSON schema.`,
+            contents: `Generate ${numStories} fake and satire news articles about the topic: "${topicToUse}". Each article should have a headline, a short description, an author name (first and last), a date (Example: Saturday, October 25, 2025), a time in CST (Example: 1:11 PM CST (DO NOT USE ZEROS FOR THE FIRST DIGIT OF THE HOURS)), and 3-5 paragraphs of content. The articles should be quite ridiculous and humorous, but don't include any swear words or inappropriate content. Respond with the specified JSON schema.`,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: NewsSchema
@@ -73,8 +76,9 @@ function App() {
         e.preventDefault();
 
         setLoading(true);
+        localStorage.setItem('lastTopic', topic);
 
-        const response = await generateStories();
+        const response = await generateStories(topic);
         const storiesWithId = response.map((story, idx) => ({
             ...story,
             id: idx
@@ -88,7 +92,7 @@ function App() {
     const handleLoadMore = async () => {
         setLoadingMore(true);
 
-        const response = await generateStories();
+        const response = await generateStories(topic);
         const startIdx = stories.length;
         const moreStories = response.map((story, idx) => ({
             ...story,
@@ -122,7 +126,7 @@ function App() {
                         <button
                             className="submit-btn"
                             type="submit"
-                            disabled={isEmpty}
+                            disabled={isEmpty || loading || loadingMore}
                         >
                             Get Fake News
                         </button>

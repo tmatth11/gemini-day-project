@@ -80,10 +80,6 @@ body {
     margin-bottom: 20px;
 }
 
-.story-headline:visited {
-    color: var(--link-color);
-}
-
 .story-results {
     display: flex;
     flex-direction: column;
